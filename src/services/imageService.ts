@@ -84,8 +84,8 @@ export class ImageService {
       }
 
       const distance = calculateHammingDistance(hash1, hash2);
-      const isSimilar = distance <= threshold;
       const similarity = 1 - distance / 256;
+      const isSimilar = similarity >= threshold;
 
       return {
         distance,
@@ -112,8 +112,8 @@ export class ImageService {
    * @returns Array of comparison results
    */
   compareHashWithCandidates(
-    targetHash: string, 
-    candidateHashes: string[], 
+    targetHash: string,
+    candidateHashes: string[],
     threshold: number = 10
   ): BatchComparisonResult[] {
     if (!this.isValidHash(targetHash)) {
@@ -121,8 +121,8 @@ export class ImageService {
     }
 
     return candidateHashes
-      .filter(hash => this.isValidHash(hash))
-      .map(hash => {
+      .filter((hash) => this.isValidHash(hash))
+      .map((hash) => {
         const comparison = this.compareImageHashes(targetHash, hash, threshold);
         return {
           hash,
@@ -138,7 +138,9 @@ export class ImageService {
    * @param files Array of files with buffer and filename
    * @returns Batch result with hashes for all files
    */
-  async calculateBatchImageHashes(files: Array<{ buffer: Buffer; filename: string }>): Promise<BatchHashResult> {
+  async calculateBatchImageHashes(
+    files: Array<{ buffer: Buffer; filename: string }>
+  ): Promise<BatchHashResult> {
     const results = [];
     let successfulFiles = 0;
     let failedFiles = 0;
@@ -146,29 +148,29 @@ export class ImageService {
     for (const file of files) {
       try {
         const hashResult = await this.calculateImageHash(file.buffer);
-        
+
         if (hashResult.success) {
           results.push({
             filename: file.filename,
             hash: hashResult.hash,
-            success: true
+            success: true,
           });
           successfulFiles++;
         } else {
           results.push({
             filename: file.filename,
-            hash: '',
+            hash: "",
             success: false,
-            error: hashResult.error
+            error: hashResult.error,
           });
           failedFiles++;
         }
       } catch (error) {
         results.push({
           filename: file.filename,
-          hash: '',
+          hash: "",
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : "Unknown error",
         });
         failedFiles++;
       }
@@ -179,7 +181,7 @@ export class ImageService {
       results,
       totalFiles: files.length,
       successfulFiles,
-      failedFiles
+      failedFiles,
     };
   }
 
